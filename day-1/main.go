@@ -51,9 +51,7 @@ func main() {
 	r.POST("/login", func(ctx *gin.Context) {
 		input := RequestLogin{}
 		if err := ctx.ShouldBindJSON(&input); err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"error": err.Error(),
-			})
+			ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
 			return
 		}
 
@@ -76,12 +74,24 @@ func main() {
 	r.POST("/register", func(ctx *gin.Context) {
 		input := RequestRegister{}
 		if err := ctx.ShouldBindJSON(&input); err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"error": err.Error(),
-			})
+			ctx.JSON(http.StatusBadRequest, Response{Error: err.Error()})
 			return
 		}
 
+		for _, v := range users {
+			if v.Email == input.Email {
+				ctx.JSON(http.StatusConflict, Response{Error: "Email sudah terdaftar"})
+				return
+			}
+		}
+
+		newUser := User{
+			Id:       len(users) + 1,
+			Email:    input.Email,
+			Password: input.Password,
+		}
+
+		users = append(users, newUser)
 		ctx.JSON(http.StatusCreated, Response{
 			Message: "Register Berhasil",
 		})
