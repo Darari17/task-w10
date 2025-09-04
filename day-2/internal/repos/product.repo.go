@@ -18,7 +18,8 @@ func NewProductRepo(db *pgxpool.Pool) *ProductRepo {
 }
 
 func (pr *ProductRepo) UpdatePatchProduct(ctx context.Context, newProduct *models.Product) (*models.Product, error) {
-	sqlQuery := "UPDATE products SET name = COALESCE($2, name), price = COALESCE($3, price), updated_at = NOW() WHERE id = $1 RETURNING id, name, price, created_at, updated_at"
+	// sqlQuery := "UPDATE products SET name = COALESCE($2, name), price = COALESCE($3, price), updated_at = NOW() WHERE id = $1 RETURNING id, name, price, created_at, updated_at"
+	sqlQuery := "UPDATE products SET name = $2, price = $3, updated_at = NOW() WHERE id = $1 RETURNING id, name, price, created_at, updated_at"
 	if err := pr.db.QueryRow(ctx, sqlQuery, newProduct.Id, newProduct.Name, newProduct.Price).
 		Scan(&newProduct.Id, &newProduct.Name, &newProduct.Price, &newProduct.CreatedAt, &newProduct.UpdatedAt); err != nil {
 		return nil, err
